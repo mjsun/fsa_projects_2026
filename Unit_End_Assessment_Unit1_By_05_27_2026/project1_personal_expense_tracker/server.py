@@ -113,19 +113,18 @@ class ExpenseTracker:
             print("Category:  ")
             for i in self.category:
                 print(f'{i}. {self.category[i]['display_name']}')
-            categoryInx = input("Enter your choice (1 - 5): ")
+            category = input("Enter your choice (1 - 5): ")
             amount = input("Enter the amount spent: ")
             description = input("Enter the description of the expense: ")
 
             curExp = {
                 'date': expDate,
-                'category': categoryInx,
+                'category': category,
                 'amount': amount,
                 'description': description
             }
 
             if self.validation(curExp):
-                curExp['category'] = self.category[categoryInx]['key']
                 curExp['amount'] = float(amount)
             else:
                 print('You have added an invalid entry, please try again!')
@@ -187,7 +186,8 @@ class ExpenseTracker:
         return True
 
     def view_expense(self):
-        print(self.expense_list[0])
+        for exp in self.expense_list:
+            print(f"Date: {exp['date']}, Amount: {exp['amount']}, Category: {self.category[exp['category']]['display_name']}, Description: {exp['description']}")
         
 
     def load_expense(self):
@@ -203,7 +203,6 @@ class ExpenseTracker:
     
     def save_expense(self):
         fieldNames = ["date", "category", "amount", "description"]
-        print(self.expense_list)
         with open("my_expenses.csv", mode="w", newline='', encoding="utf-8") as csv_file:
             writer = csv.DictWriter(csv_file, fieldnames=fieldNames)
             writer.writeheader()
