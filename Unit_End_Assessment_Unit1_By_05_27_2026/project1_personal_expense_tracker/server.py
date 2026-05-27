@@ -30,7 +30,7 @@
 __all__ = ['ExpenseTracker']
 
 import json
-from datetime import datetime
+from datetime import datetime, date
 import csv
 
 class ExpenseTracker:
@@ -113,16 +113,24 @@ class ExpenseTracker:
             print("Category:  ")
             for i in self.category:
                 print(f'{i}. {self.category[i]['display_name']}')
-            category = input("Enter your choice (1 - 5): ")
+            categoryInx = input("Enter your choice (1 - 5): ")
             amount = input("Enter the amount spent: ")
             description = input("Enter the description of the expense: ")
 
             curExp = {
                 'date': expDate,
-                'category': category,
+                'category': categoryInx,
                 'amount': amount,
                 'description': description
             }
+
+            if self.validation(curExp):
+                curExp['category'] = self.category[categoryInx]['key']
+                curExp['amount'] = float(amount)
+            else:
+                print('You have added an invalid entry, please try again!')
+                self.add_expense()
+
             self.expense_list.append(curExp)
             print('- Add another expense, choose 1;')
             print('- Go back to main menu, choose 2.')
@@ -131,7 +139,52 @@ class ExpenseTracker:
                 self.add_expense()
             else:
                 break
-
+    
+    def validation(self, exp):
+        isDate = self._validate_date(exp['date'])
+        isAmount = self._validate_amount(exp['amount'])
+        isCategory = self._validate_category(exp['category'])
+        isDescription = self._validate_description(exp['description'])
+        if isDate & isAmount & isCategory & isDescription:
+            return True
+        else:
+            return False
+   
+    
+    def _validate_date(self, date_string):
+        if not date_string:
+            return False
+        try:
+            datetime.strptime(date_string, "%Y-%m-%d")
+            return True
+        except:
+            print(f'You have entered an invalid date {date_string}')
+            return False
+    
+    def _validate_amount(self, amount):
+        if amount == None:
+            return False
+        try:
+            float(amount)
+            return True
+        except:
+            print(f'You have entered an invalid amount {amount}')
+            return False
+    
+    def _validate_category(self, inx):
+        if not inx:
+            return False
+        if inx in self.category.keys():
+            return True
+        else: 
+            print(f'You have entered an invalid category option {inx}')
+            return False
+    
+    def _validate_description(self, description):
+        if not description:
+            print('You have not enter any description!')
+            return False
+        return True
 
     def view_expense(self):
         print(self.expense_list[0])
